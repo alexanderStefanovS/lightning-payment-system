@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 export function useAuthFetch() {
     const router = useRouter();
 
-    async function authFetch(url: string, options: any, isText = false) {
+    async function authFetch(url: string, options: any, params: { isText?: boolean, redirectLogin?: boolean } = { isText: false, redirectLogin: true }) {
         const token = Cookies.get('session');
 
         const headers = {
@@ -21,7 +21,10 @@ export function useAuthFetch() {
 
             if (response.status == 401) {
                 Cookies.remove('session');
-                router.push('/login');
+
+                if (params.redirectLogin) {
+                    router.push('/login');
+                }
 
                 throw new Error('Unauthorized');
             }
@@ -30,7 +33,7 @@ export function useAuthFetch() {
                 throw new Error('Failed to fetch data');
             }
 
-            if (isText) {
+            if (params.isText) {
                 return response.text();
             }
 

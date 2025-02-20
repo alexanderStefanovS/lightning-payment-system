@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards, UseInterceptors } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
 
+@UseInterceptors(ActivityLogInterceptor)
 @Controller('wallet')
 @UseGuards(JwtAuthGuard)
 export class WalletController {

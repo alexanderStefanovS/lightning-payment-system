@@ -1,9 +1,11 @@
-import { Body, Request, Controller, Get, Post, UseGuards, Put } from "@nestjs/common";
+import { Body, Request, Controller, Get, Post, UseGuards, Put, UseInterceptors } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { ActivityLogInterceptor } from "src/core/activity-log/activity-log.interceptor";
 import { ChangePasswordDto } from "src/dtos/change-password.dto";
 import { UserDto } from "src/dtos/user.dto";
 import { UserService } from "src/user/users.service";
 
+@UseInterceptors(ActivityLogInterceptor)
 @Controller('users')
 export class UserController {
     constructor(private userService: UserService) {}

@@ -19,6 +19,10 @@ export class WalletService {
     return { balance };
   }
 
+  public async updateOrganizationBalance(orgId: string, balance: number) {
+    await this.organizationModel.findByIdAndUpdate(orgId, { balance });
+  }
+
   public async createWithdrawTransaction(orgId: string, lightningInvoice: string): Promise<{ transactionId: string }> {
     const organization = await this.organizationModel.findById(orgId);
     if (!organization) {
@@ -44,7 +48,9 @@ export class WalletService {
       throw new ForbiddenException('Insufficient balance');
     }
 
-    const transaction = await this.transactionService.generateTransaction(organization.id, amount, description, false);
+    const transaction = await this.transactionService.generateOutboundTransaction(organization.id, amount, description, lightningInvoice);
+
+    this.updateOrganizationBalance(orgId, organization.balance - amount);
     
     return { transactionId: transaction.id };
   }

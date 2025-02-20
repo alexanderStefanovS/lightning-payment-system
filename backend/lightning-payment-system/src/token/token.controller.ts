@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, UseInterceptors } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { TokenDto } from 'src/dtos/token.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
 
+@UseInterceptors(ActivityLogInterceptor)
 @Controller('token')
 export class TokenController {
     constructor(private readonly tokenService: TokenService) {}

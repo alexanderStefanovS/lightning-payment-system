@@ -1,21 +1,26 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TransactionState } from 'src/enums/transaction-state';
 import { GeneratedInvoice } from 'src/interfaces/generated-invoice';
 
 @Injectable()
 export class LnbitsApiService {
     private readonly baseUrl = 'https://demo.lnbits.com/api/v1';
-    private readonly xApiKey = '';
+    private readonly xApiKey: string;
 
-    public generateInvoice(amount: number, description: string, isInbound: boolean): Promise<GeneratedInvoice> {
+    constructor(private configService: ConfigService) {
+        this.xApiKey = this.configService.get<string>('LNBITS_X_API_KEY')
+    }
+
+    public generateInvoice(config: { amount?: number, description?: string, lightningInvoice?: string }, isInbound: boolean): Promise<GeneratedInvoice> {
         const body = {
             out: !isInbound,
-            amount,
-            memo: description,
+            ...(config.amount && { amount: config.amount }),
+            ...(config.lightningInvoice && { bolt11: config.lightningInvoice }),
+            memo: config.description,
         };
 
         console.log(body);
-
 
         return fetch(`${this.baseUrl}/payments`, {
             method: 'POST',

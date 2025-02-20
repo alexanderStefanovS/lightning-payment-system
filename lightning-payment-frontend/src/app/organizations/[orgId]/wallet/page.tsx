@@ -6,6 +6,8 @@ import { use, useEffect, useState } from 'react';
 
 export default function OrganizationWallet({ params }: { params: Promise<{ orgId: string }> }) {
     const { orgId } = use(params);
+    const authFetch = useAuthFetch();
+
     const [walletBalance, setWalletBalance] = useState<number | null>(null);
     const [lightningInvoice, setLightningInvoice] = useState<string>('');
     const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
@@ -13,13 +15,10 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
     const [amount, setAmount] = useState<number | null>(null);
     const [description, setDescription] = useState<string>('');
 
-    const authFetch = useAuthFetch();
-
     useEffect(() => {
         const fetchWalletBalance = async () => {
             try {
                 const data = await authFetch(`http://localhost:3000/wallet/org-balance/${orgId}`, { method: 'GET' });
-
                 setWalletBalance(data.balance);
             } catch (error) {
                 console.error('Error fetching wallet balance:', error);
@@ -40,25 +39,23 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
             });
 
             const transactionId = data.transactionId;
-
             const eventSource = new EventSource(`http://localhost:3000/transaction/${transactionId}/state/stream`);
 
             eventSource.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-
-                if (data.state !== 'pending') {
-                    setTransactionState(data.state);
-                }
+                setTransactionState(data.state);
 
                 if (data.state === 'success') {
                     setWalletBalance((prev) => (prev !== null ? prev - (amount || 0) : prev));
                 }
 
-                eventSource.close();
+                if (data.state !== 'pending') {
+                    eventSource.close();
+                }
             };
 
             eventSource.onerror = (error) => {
-                console.log('SSE connection error:', error);
+                console.error('SSE connection error:', error);
                 setTransactionState('failed');
                 eventSource.close();
             };
@@ -66,65 +63,93 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
             setLightningInvoice('');
         } catch (error) {
             console.error('Error processing withdrawal:', error);
+            setTransactionState('failed');
         } finally {
             setIsWithdrawing(false);
-            setTransactionState('failed');
         }
     };
 
-    const handleLightningInvoiceInput = (lightningInvoice: string) => {
-        setLightningInvoice(lightningInvoice);
+    const handleLightningInvoiceInput = (invoice: string) => {
+        setLightningInvoice(invoice);
 
         let decodedInvoice: DecodedInvoice;
-
         try {
-            decodedInvoice = decode(lightningInvoice);
+            decodedInvoice = decode(invoice);
         } catch {
-            throw new Error('Invalid invoice');
+            return; // Prevents crashes from invalid input.
         }
 
-        const amountSection = decodedInvoice.sections.find(section => section.name === 'amount');
+        const amountSection = decodedInvoice.sections.find((section) => section.name === 'amount');
         const invoiceAmount = amountSection ? +amountSection.value / 1000 : 0;
-        const descriptionSection = decodedInvoice.sections.find(section => section.name === 'description');
-        const invoiceDescription = descriptionSection ? descriptionSection.value : '';
 
-        if (!invoiceAmount || !invoiceDescription) {
-            throw new Error('Invalid invoice');
-        }
+        const descriptionSection = decodedInvoice.sections.find((section) => section.name === 'description');
+        const invoiceDescription = descriptionSection ? descriptionSection.value : '';
 
         setAmount(invoiceAmount);
         setDescription(invoiceDescription);
-    }
+    };
 
     return (
-        <div className='max-w-md mx-auto bg-white p-6 rounded shadow-md'>
-            <h1 className='text-2xl font-bold mb-4'>Organization Wallet</h1>
-            <p className='mb-2'>
-                <strong>Balance:</strong> {walletBalance !== null ? `${walletBalance} Sats` : 'Loading...'}
-            </p>
+        <div className="max-w-4xl mx-auto bg-zinc-900 p-6 rounded-lg shadow-md text-amber-500">
+            <h1 className="text-3xl font-bold mb-6">Organization Wallet</h1>
 
-            <div className='mt-4'>
+            {/* Wallet Balance */}
+            <div className="bg-zinc-800 p-6 rounded-lg shadow text-center mb-6">
+                <p className="text-lg font-semibold">Balance:</p>
+                <p className="text-2xl font-bold text-amber-400">
+                    {walletBalance !== null ? `${walletBalance} Sats` : 'Loading...'}
+                </p>
+            </div>
+
+            {/* Withdraw Section */}
+            <div className="bg-zinc-800 p-6 rounded-lg shadow">
+                <h2 className="text-lg font-semibold mb-3">Withdraw Funds</h2>
                 <input
-                    type='text'
+                    type="text"
                     value={lightningInvoice}
                     onChange={(e) => handleLightningInvoiceInput(e.target.value)}
-                    placeholder='Enter Lightning Invoice'
-                    className='border rounded p-2 w-full mb-2'
+                    placeholder="Enter Lightning Invoice"
+                    className="bg-zinc-700 border border-zinc-600 rounded-lg w-full p-3 mb-2 focus:ring-2 focus:ring-amber-500 outline-none text-white"
                 />
-                <p>Amount: {amount}</p>
-                <p>Description: {description}</p>
+                {amount !== null && (
+                    <div className="bg-zinc-700 p-3 rounded-lg mb-4">
+                        <p>
+                            <strong>Amount:</strong> {amount} Sats
+                        </p>
+                        <p>
+                            <strong>Description:</strong> {description}
+                        </p>
+                    </div>
+                )}
+
+                {/* Withdraw Button */}
                 <button
                     onClick={handleWithdraw}
-                    disabled={
-                        isWithdrawing ||
-                        !lightningInvoice
-                    }
-                    className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full'
+                    disabled={isWithdrawing || !lightningInvoice}
+                    className={`w-full text-white px-4 py-2 rounded ${isWithdrawing || !lightningInvoice
+                            ? 'bg-zinc-600 cursor-not-allowed'
+                            : 'bg-amber-500 hover:bg-amber-600 transition'
+                        }`}
                 >
                     {isWithdrawing ? 'Processing...' : 'Withdraw'}
                 </button>
             </div>
-            <h1>{transactionState}</h1>
+
+            {/* Transaction State Display */}
+            {transactionState && (
+                <div
+                    className={`mt-6 p-4 rounded-lg text-center font-bold ${transactionState === 'success'
+                            ? 'bg-green-700 text-green-200'
+                            : transactionState === 'failed'
+                                ? 'bg-red-700 text-red-200'
+                                : 'bg-yellow-700 text-yellow-200'
+                        }`}
+                >
+                    {transactionState === 'pending' && 'Transaction in progress...'}
+                    {transactionState === 'success' && 'Withdrawal successful!'}
+                    {transactionState === 'failed' && 'Transaction failed. Please try again.'}
+                </div>
+            )}
         </div>
     );
 }

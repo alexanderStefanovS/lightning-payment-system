@@ -1,10 +1,12 @@
-import { Controller, Post, Request, Body, UseGuards, Get, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Post, Request, Body, UseGuards, Get, Param, Delete, Patch, UseInterceptors } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { CreateOrganizationDto } from 'src/dtos/create-organization.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OrganizationDto } from 'src/dtos/organization.dto';
 import { MessageDto } from 'src/dtos/message.dto';
+import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
 
+@UseInterceptors(ActivityLogInterceptor)
 @Controller('organization')
 export class OrganizationController {
     constructor(private readonly organizationService: OrganizationService) { }

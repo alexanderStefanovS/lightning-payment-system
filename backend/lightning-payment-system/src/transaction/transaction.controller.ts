@@ -1,10 +1,12 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, Request, UsePipes, Query, Sse } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards, Request, UsePipes, Query, Sse, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TransactionGenerationDto } from 'src/dtos/transaction-generation.dto';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { TransactionsQueryTransformPipe } from './pipes/transactions-query-transform.pipe';
 import { Observable, from, interval, map, switchMap } from 'rxjs';
+import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
 
+@UseInterceptors(ActivityLogInterceptor)
 @Controller('transaction')
 export class TransactionController {
   constructor(
@@ -14,8 +16,8 @@ export class TransactionController {
   @Post('generate-transaction')
   @HttpCode(HttpStatus.OK)
   public async generateTransaction(@Body() transactionInfo: TransactionGenerationDto): Promise<{ transactionId: string }> {
-    const transaction = await this.transactionService.generateTransaction(transactionInfo.orgId, transactionInfo.amount,
-      transactionInfo.description, true, transactionInfo.verificationToken);
+    const transaction = await this.transactionService.generateInboundTransaction(transactionInfo.orgId, transactionInfo.amount,
+      transactionInfo.description, transactionInfo.verificationToken);
 
     return { transactionId: transaction.id };
   }

@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TransactionGenerationDto } from 'src/dtos/transaction-generation.dto';
 import { GeneratedInvoice } from 'src/interfaces/generated-invoice';
 
 @Injectable()
 export class VoltageNodeService {
   private readonly REST_HOST = 'balkan-node.u.voltageapp.io:8080';
-  private readonly MACAROON = '';
+  private readonly MACAROON: string;
+
+  constructor(private configService: ConfigService) {
+    this.MACAROON = this.configService.get<string>('MACAROON')
+  }
 
   public getInfo() {
     return fetch(`https://${this.REST_HOST}/v1/getinfo`, {

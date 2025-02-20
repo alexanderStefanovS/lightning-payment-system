@@ -86,30 +86,34 @@ export default function OrganizationInfo({ params }: { params: Promise<{ orgId: 
   }
 
   return (
-    <div className='bg-white p-6 rounded shadow-md'>
-      <h1 className='text-2xl font-bold mb-4'>{organization.name}</h1>
-      <p>{organization.description}</p>
-      <p>Role: {organization.role}</p>
+    <div className="max-w-4xl mx-auto bg-zinc-900 text-amber-500 p-6 rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold mb-4">{organization.name}</h1>
+      <p className="text-lg">{organization.description}</p>
+      <p className="mt-2 text-gray-400">Role: <span className="font-semibold text-amber-400">{role}</span></p>
 
       {role === 'OWNER' && (
-        <div className='mt-6'>
-          <div className='mb-4'>
-            <h2 className='text-lg font-bold mb-2'>Invite a User</h2>
-            <div className='flex items-center gap-4'>
+        <div className="mt-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-3">Invite a User</h2>
+            <div className="grid grid-flow-col grid-cols-12 gap-2">
               <input
-                type='email'
+                type="email"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder='Enter email'
-                className='border rounded p-2 flex-1'
+                placeholder="Enter email"
+                className="bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2 col-span-4"
               />
-              <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
-                <option value='ADMIN'>Admin</option>
-                <option value='VIEWER'>Viewer</option>
+              <select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value)}
+                className="bg-zinc-800 text-white border border-gray-700 rounded p-2 col-span-3"
+              >
+                <option value="ADMIN">Admin</option>
+                <option value="VIEWER">Viewer</option>
               </select>
               <button
                 onClick={handleInviteUser}
-                className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'
+                className="bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg col-span-2 hover:bg-amber-600 transition-all"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Inviting...' : 'Invite'}
@@ -117,27 +121,26 @@ export default function OrganizationInfo({ params }: { params: Promise<{ orgId: 
             </div>
           </div>
 
-          <h2 className='text-lg font-bold mb-4'>Users</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <h2 className="text-xl font-semibold mb-4">Users</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {users.map((user) => (
-              <div key={user.id} className='bg-gray-100 p-4 shadow rounded flex justify-between items-center'>
+              <div key={user.id} className="bg-zinc-800 p-4 shadow rounded-lg flex justify-between items-center">
                 <div>
-                  <p className='font-bold'>{user.name}</p>
-                  <p className='text-gray-600'>{user.email}</p>
-                  <p className='text-gray-600'>Role: {user.role}</p>
+                  <p className="font-bold text-amber-400">{user.name}</p>
+                  <p className="text-gray-400">{user.email}</p>
+                  <p className="text-gray-400">Role: <span className="font-semibold">{user.role}</span></p>
                 </div>
-                {user.isSelf ?
-                  'You' :
-                  (
-                    <button
-                      onClick={() => handleRemoveUser(user.id)}
-                      className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600'
-                      disabled={user.isSelf}
-                    >
-                      Remove
-                    </button>
-                  )
-                }
+                {user.isSelf ? (
+                  <span className="text-gray-500">You</span>
+                ) : (
+                  <button
+                    onClick={() => handleRemoveUser(user.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
+                    disabled={user.isSelf}
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             ))}
           </div>

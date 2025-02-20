@@ -6,11 +6,13 @@ import { TokenModule } from './token/token.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WalletModule } from './wallet/wallet.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost:27017/lightning-payment-system-db'),
     ScheduleModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     OrganizationModule,
     TokenModule,

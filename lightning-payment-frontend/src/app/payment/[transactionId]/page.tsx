@@ -44,27 +44,35 @@ export default function PaymentPage({ params }: { params: Promise<{ transactionI
     }, [transactionId]);
 
     if (!transaction) {
-        return <div>Loading transaction...</div>;
+        return (
+            <div className="w-full h-screen flex justify-center items-center bg-zinc-950 text-amber-500">
+                Loading transaction...
+            </div>
+        );
     }
 
     return (
-        <div className='max-w-md mx-auto bg-white p-6 rounded shadow-md'>
-            <h1 className='text-2xl font-bold mb-4'>Transaction Details</h1>
-            <p className='mb-2'>
-                <strong>Description:</strong> {transaction.description}
-            </p>
-            <p className='mb-2'>
-                <strong>Amount:</strong> {transaction.amount} sats
-            </p>
-            <p className='mb-2'>
-                <strong>Status:</strong> {transactionState}
-            </p>
-            <div className='mt-4'>
-                <p className='mb-2'>
-                    <strong>Scan the QR code to pay:</strong>
+        <section className="w-full h-full flex justify-center items-center bg-zinc-950">
+            <div className="bg-zinc-900 p-8 rounded-lg shadow-md w-[400px] text-amber-500">
+                <h1 className="text-3xl font-bold mb-6 text-center">Transaction Details</h1>
+
+                <p className="mb-2">
+                    <span className="text-amber-400 font-semibold">Description:</span> {transaction.description}
                 </p>
-                <QRCodeCanvas value={transaction.invoicePaymentRequest} size={256} />
+                <p className="mb-2">
+                    <span className="text-amber-400 font-semibold">Amount:</span> {transaction.amount} sats
+                </p>
+                <p className="mb-4">
+                    <span className="text-amber-400 font-semibold">Status:</span> {transactionState}
+                </p>
+
+                <div className="mt-6 flex flex-col items-center">
+                    <p className="mb-2 text-center text-amber-400 font-semibold">Scan the QR code to pay:</p>
+                    <div className="bg-zinc-800 p-4 rounded-lg shadow-lg">
+                        <QRCodeCanvas value={transaction.invoicePaymentRequest} size={220} />
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     );
 }

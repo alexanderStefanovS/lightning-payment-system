@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 
 function SidebarWrapper({ children }) {
   const pathname = usePathname();
-  const hideSidebar = pathname === "/login" || pathname === "/register" || pathname.includes("/payment");
+  const hideSidebar = pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.includes("/payment");
 
   if (hideSidebar) {
     return null;

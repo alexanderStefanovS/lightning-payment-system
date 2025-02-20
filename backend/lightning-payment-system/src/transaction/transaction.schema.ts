@@ -15,7 +15,7 @@ export class Transaction {
     @Prop({ required: true })
     description: string;
 
-    @Prop({ required: true })
+    @Prop()
     invoicePaymentRequest: string;
 
     @Prop({ required: true })

@@ -39,24 +39,31 @@ export class TransactionService {
     }
   }
 
-  public async generateTransaction(orgId: string, amount: number, description: string, isInbound: boolean, verificationToken?: string) {
+  public async generateInboundTransaction(orgId: string, amount: number, description: string, verificationToken: string) {
     let verificationTokenId: string;
-    
-    if (isInbound) {
-      verificationTokenId = await this.tokenService.verifyToken(verificationToken || '', orgId);
 
-      if (!verificationTokenId) {
-        throw new BadRequestException('Invalid token');
-      }
+    verificationTokenId = await this.tokenService.verifyToken(verificationToken || '', orgId);
+
+    if (!verificationTokenId) {
+      throw new BadRequestException('Invalid token');
     }
 
     const [generatedInvoice, amountPriceInDollars] = await Promise.all([
-      this.lnbitsApiService.generateInvoice(amount, description, isInbound),
+      this.lnbitsApiService.generateInvoice({ amount, description }, true),
       this.getCurrentAmountPriceInDollars(amount)
     ]);
 
 
-    return this.saveTransaction(generatedInvoice, amount, description, isInbound, orgId, verificationTokenId, +amountPriceInDollars.toFixed(3));
+    return this.saveTransaction(generatedInvoice, amount, description, true, orgId, verificationTokenId, +amountPriceInDollars.toFixed(3));
+  }
+
+  public async generateOutboundTransaction(orgId: string, amount: number, description: string, lightningInvoice: string) {
+    const [generatedInvoice, amountPriceInDollars] = await Promise.all([
+      this.lnbitsApiService.generateInvoice({ lightningInvoice, description }, false),
+      this.getCurrentAmountPriceInDollars(amount)
+    ]);
+
+    return this.saveTransaction(generatedInvoice, amount, description, false, orgId, null, +amountPriceInDollars.toFixed(3));
   }
 
   public async findTransactionState(transactionId: string): Promise<{ state: string }> {
