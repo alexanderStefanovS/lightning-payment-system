@@ -35,8 +35,9 @@ export class OrganizationService {
     }
 
     public async getOrganizations(userId: string): Promise<OrganizationDto[]> {
-        const userOrganizations = await this.userOrganizationModel.find({ userId }).lean();
-
+        const userOrganizations = (await this.userOrganizationModel.find({ userId }).lean())
+            .filter((uo) => uo.status === OrganizationStatus.ACTIVE);
+        
         const organizationIds = userOrganizations.map((uo) => uo.orgId);
 
         const organizations = await this.organizationModel
@@ -97,6 +98,7 @@ export class OrganizationService {
                     email: user.email,
                     role: mapping.role,
                     isSelf: user._id.toString() === requestorId,
+                    status: mapping.status,
                 };
             }
         }).filter(Boolean);
@@ -114,10 +116,10 @@ export class OrganizationService {
         }
 
         if (userMembership.userId === requestorId) {
-            throw new ForbiddenException('You cannot remove yourself from the organization');
+            throw new BadRequestException('You cannot remove yourself from the organization');
         }
 
-        await this.userOrganizationModel.updateOne({ orgId, userId }, { status: OrganizationStatus.REMOVED });
+        await this.userOrganizationModel.deleteOne({ _id: userMembership._id });
     }
 
     public async inviteUserToOrganization(orgId: string, email: string, role: OrganizationRole, requestorId: string): Promise<void> {
@@ -133,7 +135,7 @@ export class OrganizationService {
 
         const existingMembership = await this.userOrganizationModel.findOne({ orgId, userId: user._id }).lean();
         if (existingMembership) {
-            throw new ForbiddenException('User is already part of this organization');
+            throw new BadRequestException('User is already part of this organization');
         }
 
         await this.userOrganizationModel.create({
@@ -157,11 +159,10 @@ export class OrganizationService {
 
         if (action === 'accept') {
             invitation.status = OrganizationStatus.ACTIVE;
+            await invitation.save();
         } else if (action === 'deny') {
-            invitation.status = OrganizationStatus.DENIED;
+            await this.userOrganizationModel.deleteOne({ _id: invitationId });
         }
-
-        await invitation.save();
     }
 
     public async getPendingInvitations(userId: string): Promise<OrganizationInvitationDto[]> {

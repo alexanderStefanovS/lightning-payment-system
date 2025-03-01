@@ -10,17 +10,12 @@ import { TransactionService } from "src/transaction/transaction.service";
 export class WalletService {
   constructor(
     @InjectModel(Organization.name) private readonly organizationModel: Model<OrganizationDocument>,
-    private readonly lnbitsApiService: LnbitsApiService,
     private readonly transactionService: TransactionService,
   ) { }
 
   public async getOrganizationBalance(orgId: string): Promise<{ balance: number }> {
     const balance = (await this.organizationModel.findById(orgId)).balance;
     return { balance };
-  }
-
-  public async updateOrganizationBalance(orgId: string, balance: number) {
-    await this.organizationModel.findByIdAndUpdate(orgId, { balance });
   }
 
   public async createWithdrawTransaction(orgId: string, lightningInvoice: string): Promise<{ transactionId: string }> {
@@ -49,9 +44,7 @@ export class WalletService {
     }
 
     const transaction = await this.transactionService.generateOutboundTransaction(organization.id, amount, description, lightningInvoice);
-
-    this.updateOrganizationBalance(orgId, organization.balance - amount);
     
     return { transactionId: transaction.id };
-  }
+  }  
 }

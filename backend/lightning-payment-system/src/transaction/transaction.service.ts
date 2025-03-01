@@ -1,7 +1,6 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { GeneratedInvoice } from 'src/interfaces/generated-invoice';
 import { TransactionState } from 'src/enums/transaction-state';
-import { TransactionGenerationDto } from 'src/dtos/transaction-generation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Transaction, TransactionDocument } from './transaction.schema';
@@ -11,12 +10,14 @@ import { UserOrganization, UserOrganizationDocument } from 'src/organization/sch
 
 import * as csv from 'csv-stringify/sync';
 import { Interval } from '@nestjs/schedule';
+import { Organization, OrganizationDocument } from 'src/organization/schemas/organization.schema';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectModel(Transaction.name) private readonly transactionModel: Model<TransactionDocument>,
     @InjectModel(UserOrganization.name) private readonly userOrganizationModel: Model<UserOrganizationDocument>,
+    @InjectModel(Organization.name) private readonly organizationModel: Model<OrganizationDocument>,
     private lnbitsApiService: LnbitsApiService,
     private tokenService: TokenService,
   ) { }
@@ -26,15 +27,22 @@ export class TransactionService {
     const pendingTransactions = await this.transactionModel.find({ state: TransactionState.PENDING });
 
     for (const transaction of pendingTransactions) {
-      const status = await this.lnbitsApiService.getTransactionStatus(transaction.paymentHash);
+      const state = await this.lnbitsApiService.getTransactionStatus(transaction.paymentHash);
 
-      console.log(`Transaction: ${transaction.id} | Status: ${status}`);
+      console.log(`Transaction: ${transaction.id} | State: ${state}`);
 
-      if (status && status !== TransactionState.PENDING) {
+      if (state && state !== TransactionState.PENDING) {
         await this.transactionModel.updateOne(
           { _id: transaction._id },
-          { state: status }
+          { state }
         );
+
+        if (state === TransactionState.SUCCESS) {
+          await this.organizationModel.updateOne(
+            { _id: transaction.orgId },
+            { balance: transaction.amount }
+          );
+        }
       }
     }
   }
@@ -58,12 +66,18 @@ export class TransactionService {
   }
 
   public async generateOutboundTransaction(orgId: string, amount: number, description: string, lightningInvoice: string) {
-    const [generatedInvoice, amountPriceInDollars] = await Promise.all([
-      this.lnbitsApiService.generateInvoice({ lightningInvoice, description }, false),
-      this.getCurrentAmountPriceInDollars(amount)
-    ]);
+    try {
+      const [generatedInvoice, amountPriceInDollars] = await Promise.all([
+        this.lnbitsApiService.generateInvoice({ lightningInvoice, description }, false),
+        this.getCurrentAmountPriceInDollars(amount)
+      ]);
 
-    return this.saveTransaction(generatedInvoice, amount, description, false, orgId, null, +amountPriceInDollars.toFixed(3));
+      return this.saveTransaction(generatedInvoice, amount, description, false, orgId, null, +amountPriceInDollars.toFixed(3));
+
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      throw new InternalServerErrorException('Error generating invoice');
+    }
   }
 
   public async findTransactionState(transactionId: string): Promise<{ state: string }> {
@@ -116,6 +130,7 @@ export class TransactionService {
         amountPriceInDollars: transaction.amountPriceInDollars,
         description: transaction.description,
         state: transaction.state,
+        date: transaction.date,
       })),
       meta: {
         total,
@@ -163,7 +178,7 @@ export class TransactionService {
       amount,
       description,
       isInbound,
-      state: TransactionState.PENDING,
+      state: generatedInvoice.paymentHash ? TransactionState.PENDING : TransactionState.FAILED,
       orgId,
       date: new Date().toISOString(),
       amountPriceInDollars,
@@ -174,10 +189,11 @@ export class TransactionService {
   }
 
   private getCurrentAmountPriceInDollars(amount: number): Promise<number> {
-    return fetch('https://api.coindesk.com/v1/bpi/currentprice.json')
+    return fetch('https://api.coinbase.com/v2/prices/BTC-USD/sell')
       .then(res => res.json())
-      .then(data => {
-        return (amount / 100_000_000) * data.bpi.USD.rate_float;
+      .then(result => {
+        const price = +result.data.amount;
+        return (amount / 100_000_000) * price;
       })
   }
 

@@ -6,11 +6,7 @@ import { redirect } from "next/navigation";
 export async function login(formData: FormData) {
     const result = Object.fromEntries(formData);
 
-    console.log(result);
-
     const { email, password } = result;
-
-    console.log(email, password);
 
     const response = await fetch('http://localhost:3000/auth/login', {
         method: 'POST',

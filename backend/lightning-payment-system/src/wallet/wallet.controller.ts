@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Param, Body, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, UseGuards } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from 'src/enums/user-role';
+import { Roles } from 'src/auth/decorators/set-roles.decorator';
 
-@UseInterceptors(ActivityLogInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.USER)
 @Controller('wallet')
-@UseGuards(JwtAuthGuard)
 export class WalletController {
     constructor(private readonly walletService: WalletService) {}
 

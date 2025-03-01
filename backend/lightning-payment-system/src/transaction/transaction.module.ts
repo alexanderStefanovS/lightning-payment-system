@@ -7,12 +7,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Transaction, TransactionSchema } from './transaction.schema';
 import { UserOrganization, UserOrganizationSchema } from 'src/organization/schemas/user-organization.schema';
 import { SharedModule } from 'src/shared/shared.module';
+import { Organization, OrganizationSchema } from 'src/organization/schemas/organization.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
       { name: UserOrganization.name, schema: UserOrganizationSchema },
+      { name: Organization.name, schema: OrganizationSchema }
     ]),
     TokenModule,
     AuthModule,

@@ -33,12 +33,16 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
         setTransactionState('pending');
 
         try {
-            const data = await authFetch(`http://localhost:3000/wallet/${orgId}/withdraw`, {
-                method: 'POST',
-                body: JSON.stringify({ lightningInvoice }),
-            });
+            const transaction = await authFetch(
+                `http://localhost:3000/wallet/${orgId}/withdraw`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ lightningInvoice }),
+                }, 
+                { redirectError: false }
+            );
 
-            const transactionId = data.transactionId;
+            const transactionId = transaction.transactionId;
             const eventSource = new EventSource(`http://localhost:3000/transaction/${transactionId}/state/stream`);
 
             eventSource.onmessage = (event) => {
@@ -50,6 +54,8 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
                 }
 
                 if (data.state !== 'pending') {
+                    setIsWithdrawing(false);
+                    setAmount(null);
                     eventSource.close();
                 }
             };
@@ -64,19 +70,19 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
         } catch (error) {
             console.error('Error processing withdrawal:', error);
             setTransactionState('failed');
-        } finally {
-            setIsWithdrawing(false);
         }
     };
 
     const handleLightningInvoiceInput = (invoice: string) => {
+        setAmount(null);
         setLightningInvoice(invoice);
+        setTransactionState('');
 
         let decodedInvoice: DecodedInvoice;
         try {
             decodedInvoice = decode(invoice);
         } catch {
-            return; // Prevents crashes from invalid input.
+            return;
         }
 
         const amountSection = decodedInvoice.sections.find((section) => section.name === 'amount');
@@ -93,7 +99,6 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
         <div className="max-w-4xl mx-auto bg-zinc-900 p-6 rounded-lg shadow-md text-amber-500">
             <h1 className="text-3xl font-bold mb-6">Organization Wallet</h1>
 
-            {/* Wallet Balance */}
             <div className="bg-zinc-800 p-6 rounded-lg shadow text-center mb-6">
                 <p className="text-lg font-semibold">Balance:</p>
                 <p className="text-2xl font-bold text-amber-400">
@@ -101,7 +106,6 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
                 </p>
             </div>
 
-            {/* Withdraw Section */}
             <div className="bg-zinc-800 p-6 rounded-lg shadow">
                 <h2 className="text-lg font-semibold mb-3">Withdraw Funds</h2>
                 <input
@@ -122,11 +126,14 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
                     </div>
                 )}
 
-                {/* Withdraw Button */}
+                {!amount}
+
+                {lightningInvoice && !amount ? 'Invalid invoice' : ''}
+
                 <button
                     onClick={handleWithdraw}
-                    disabled={isWithdrawing || !lightningInvoice}
-                    className={`w-full text-white px-4 py-2 rounded ${isWithdrawing || !lightningInvoice
+                    disabled={isWithdrawing || !lightningInvoice || !amount}
+                    className={`w-full text-white px-4 py-2 rounded ${isWithdrawing || !lightningInvoice || !amount
                             ? 'bg-zinc-600 cursor-not-allowed'
                             : 'bg-amber-500 hover:bg-amber-600 transition'
                         }`}
@@ -135,7 +142,6 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
                 </button>
             </div>
 
-            {/* Transaction State Display */}
             {transactionState && (
                 <div
                     className={`mt-6 p-4 rounded-lg text-center font-bold ${transactionState === 'success'

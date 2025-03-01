@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 export function useAuthFetch() {
     const router = useRouter();
 
-    async function authFetch(url: string, options: any, params: { isText?: boolean, redirectLogin?: boolean } = { isText: false, redirectLogin: true }) {
+    async function authFetch(url: string, options: any, 
+        params: { isText?: boolean, redirectLogin?: boolean, redirectError?: boolean } = { isText: false, redirectLogin: true, redirectError: true }) {
+
         const token = Cookies.get('session');
 
         const headers = {
             ...options.headers,
-            Authorization: token ? `Bearer ${token}` : undefined,
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             'Content-Type': 'application/json',
         };
 
@@ -19,33 +21,34 @@ export function useAuthFetch() {
                 headers,
             });
 
-            if (response.status == 401) {
-                Cookies.remove('session');
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    Cookies.remove('session');
 
-                if (params.redirectLogin) {
-                    router.push('/login');
+                    if (params?.redirectLogin !== false) {
+                        router.push('/error?type=unauthorized');
+                    }
+
+                    throw new Error('Unauthorized');
                 }
 
-                throw new Error('Unauthorized');
+                console.log(params);
+
+                if (params?.redirectError !== false && response.status >= 500 && response.status < 600) {
+                    router.push('/error?type=server');
+                    throw new Error('Server Error');
+                }
+
+                throw await response.json();
             }
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-
-            if (params.isText) {
-                return response.text();
-            }
-
-            return response.json();
+            return params.isText ? response.text() : response.json();
 
         } catch (error) {
             console.error('Error fetching data:', error);
-
             throw error;
         }
     }
 
     return authFetch;
-
 }

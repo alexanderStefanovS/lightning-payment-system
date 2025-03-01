@@ -4,9 +4,10 @@ import { TransactionGenerationDto } from 'src/dtos/transaction-generation.dto';
 import { TransactionService } from 'src/transaction/transaction.service';
 import { TransactionsQueryTransformPipe } from './pipes/transactions-query-transform.pipe';
 import { Observable, from, interval, map, switchMap } from 'rxjs';
-import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/set-roles.decorator';
+import { UserRole } from 'src/enums/user-role';
 
-@UseInterceptors(ActivityLogInterceptor)
 @Controller('transaction')
 export class TransactionController {
   constructor(
@@ -33,7 +34,8 @@ export class TransactionController {
   }
 
   @Get('per-org/:orgId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER)
   @UsePipes(TransactionsQueryTransformPipe)
   public getTransactionsForOrganization(
     @Param('orgId') orgId: string,
@@ -47,7 +49,8 @@ export class TransactionController {
   }
 
   @Get('export/:orgId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.USER)  
   @UsePipes(TransactionsQueryTransformPipe)
   public exportTransactions(
     @Param('orgId') orgId: string,

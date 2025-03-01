@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useAuthFetch } from '@/lib/auth-fetch';
 
 export default function OrganizationsPage() {
-  const [organizations, setOrganizations] = useState<any>([]);
-  const [pendingInvitations, setPendingInvitations] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<any[] | null>(null);
+  const [pendingInvitations, setPendingInvitations] = useState<any[] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,7 +72,7 @@ export default function OrganizationsPage() {
     }
   };
 
-  if (!organizations.length && !pendingInvitations.length) {
+  if (!organizations || !pendingInvitations) {
     return <div className="text-center text-lg font-semibold text-amber-500">Loading organizations...</div>;
   }
 
@@ -80,10 +80,10 @@ export default function OrganizationsPage() {
     <div className="max-w-4xl mx-auto bg-zinc-900 text-amber-500 p-8 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-6 text-center">Organizations</h1>
 
-      {pendingInvitations.length > 0 && (
+      {pendingInvitations!.length > 0 && (
         <div className="mb-6">
           <h2 className="text-lg font-bold mb-2 text-amber-400">Pending Invitations</h2>
-          {pendingInvitations.map((invitation) => (
+          {pendingInvitations!.map((invitation) => (
             <div key={invitation.id} className="bg-zinc-800 p-4 mb-4 rounded-lg shadow-md">
               <h3 className="font-bold">{invitation.name}</h3>
               <p className="text-gray-400">{invitation.description}</p>
@@ -114,7 +114,7 @@ export default function OrganizationsPage() {
       </button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {organizations.map((org) => (
+        {organizations!.map((org) => (
           <Link key={org.id} href={`/organizations/${org.id}/info`}>
             <div className="bg-zinc-800 p-6 rounded-lg shadow-md cursor-pointer hover:bg-zinc-700 transition-all">
               <h2 className="text-xl font-bold text-amber-400 mb-2">{org.name}</h2>

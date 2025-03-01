@@ -1,7 +1,8 @@
 'use client';
 
 import { useAuthFetch } from '@/lib/auth-fetch';
-import { use, useEffect, useState } from 'react';
+import { use, useContext, useEffect, useState } from 'react';
+import { OrganizationContext } from '../layout';
 
 export default function OrganizationTokens({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = use(params);
@@ -10,6 +11,9 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
   const [newToken, setNewToken] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<any>(true);
   const [form, setForm] = useState({ name: '', description: '', expiryDate: '', orgId });
+  const { organization } = useContext(OrganizationContext);
+
+  console.log(organization);
 
   const authFetch = useAuthFetch();
 
@@ -62,12 +66,14 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
     <div className="max-w-4xl mx-auto bg-zinc-900 text-amber-500 p-8 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-6 text-center">Organization Tokens</h1>
 
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg hover:bg-amber-600 transition-all w-full mb-6"
-      >
-        Generate Token
-      </button>
+      {organization.role !== 'VIEWER' && 
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg hover:bg-amber-600 transition-all w-full mb-6"
+        >
+          Generate Token
+        </button>
+      }
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tokens.length === 0 && (<div className="text-lg font-semibold text-amber-500">No tokens found</div>)}

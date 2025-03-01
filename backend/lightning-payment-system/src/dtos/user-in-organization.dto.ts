@@ -1,3 +1,4 @@
+import { OrganizationStatus } from "src/enums/organization-status";
 
 export interface UserInOrganizationDto {
     id: string;
@@ -5,4 +6,5 @@ export interface UserInOrganizationDto {
     email: string;
     role: string;
     isSelf: boolean;
+    status: OrganizationStatus
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthFetch } from '@/lib/auth-fetch';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -9,7 +10,9 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
   const authFetch = useAuthFetch();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -17,6 +20,7 @@ export default function ProfilePage() {
         const data = await authFetch('http://localhost:3000/users', { method: 'GET' });
         setUser(data);
       } catch (error) {
+        router.replace('/error?type=server');
         console.error('Failed to fetch user info', error);
       }
     };
@@ -85,7 +89,7 @@ export default function ProfilePage() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 required
               />
             </div>
@@ -96,7 +100,7 @@ export default function ProfilePage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 required
               />
             </div>

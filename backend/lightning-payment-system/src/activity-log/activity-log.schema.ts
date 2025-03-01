@@ -25,6 +25,9 @@ export class ActivityLog {
 
     @Prop()
     errorMessage?: string;
+
+    @Prop({ type: Date })
+    createdAt: Date;
 }
 
 export const ActivityLogSchema = SchemaFactory.createForClass(ActivityLog);

@@ -2,21 +2,22 @@ import { Controller, Get, Post, Body, Param, UseGuards, Req, UseInterceptors } f
 import { TokenService } from './token.service';
 import { TokenDto } from 'src/dtos/token.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { ActivityLogInterceptor } from 'src/core/activity-log/activity-log.interceptor';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UserRole } from 'src/enums/user-role';
+import { Roles } from 'src/auth/decorators/set-roles.decorator';
 
-@UseInterceptors(ActivityLogInterceptor)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.USER)
 @Controller('token')
 export class TokenController {
     constructor(private readonly tokenService: TokenService) {}
 
     @Post()
-    @UseGuards(JwtAuthGuard)
     public create(@Body() tokenDto: TokenDto, @Req() req: any) {
         return this.tokenService.createToken(tokenDto, req.user.id);
     }
 
     @Get('per-org/:orgId')
-    @UseGuards(JwtAuthGuard)
     public findTokensPerOrgId(@Param('orgId') orgId: string) {
         return this.tokenService.findTokensByOrgId(orgId);
     }

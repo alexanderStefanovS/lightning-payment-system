@@ -34,7 +34,6 @@ export default function PaymentPage({ params }: { params: Promise<{ transactionI
         };
 
         eventSource.onerror = (error) => {
-            console.log('SSE connection error:', error);
             eventSource.close();
         };
 

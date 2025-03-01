@@ -19,6 +19,9 @@ export class User {
   @Prop({ required: true })
   public password: string;
 
+  @Prop({ required: true })
+  public isActive: boolean;
+
   @Prop({ required: true, enum: UserRole })
   public role: UserRole;
 }

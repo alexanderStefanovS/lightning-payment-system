@@ -11,6 +11,7 @@
   "dependencies": {
     "js-cookie": "^3.0.5",
     "light-bolt11-decoder": "^3.2.0",
+    "lucide-react": "^0.476.0",
     "next": "15.1.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",

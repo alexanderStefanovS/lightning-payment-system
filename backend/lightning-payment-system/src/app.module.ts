@@ -7,6 +7,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WalletModule } from './wallet/wallet.module';
 import { ConfigModule } from '@nestjs/config';
+import { ActivityLogModule } from './activity-log/activity-log.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -17,8 +19,10 @@ import { ConfigModule } from '@nestjs/config';
     OrganizationModule,
     TokenModule,
     TransactionModule,
-    WalletModule
+    WalletModule,
+    ActivityLogModule,
+    AdminModule
   ]
 })
 
-export class AppModule {}
+export class AppModule { }

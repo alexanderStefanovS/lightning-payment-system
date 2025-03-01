@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ActivityLogInterceptor } from './activity-log.interceptor';
@@ -16,6 +16,6 @@ import { ActivityLog, ActivityLogSchema } from './activity-log.schema';
             useClass: ActivityLogInterceptor,
         },
     ],
-    exports: [ActivityLogService],
+    exports: [ActivityLogService]
 })
 export class ActivityLogModule {}
