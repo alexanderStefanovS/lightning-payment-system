@@ -91,19 +91,19 @@ export default function OrganizationInfo({ params }: { params: Promise<{ orgId: 
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="Enter email"
-                className="bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2 col-span-4"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 col-span-4"
               />
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="bg-zinc-800 text-white border border-gray-700 rounded p-2 col-span-3"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 col-span-3"
               >
                 <option value="ADMIN">Admin</option>
                 <option value="VIEWER">Viewer</option>
               </select>
               <button
                 onClick={handleInviteUser}
-                className="bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg col-span-2 hover:bg-amber-600 transition-all"
+                className="bg-amber-500 text-zinc-900 w-full rounded-lg hover:bg-amber-400 transition-all duration-300 col-span-2"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Inviting...' : 'Invite'}

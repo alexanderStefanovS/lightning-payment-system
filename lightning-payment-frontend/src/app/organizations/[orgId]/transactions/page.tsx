@@ -94,22 +94,22 @@ export default function OrganizationTransactions({ params }: { params: Promise<{
 
             <form onSubmit={handleFilterSubmit} className='mb-6 flex flex-wrap gap-4'>
                 <input type='number' name='amount' value={filters.amount} onChange={handleFilterChange} placeholder='Amount'
-                    className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2' />
-                <input type='number' name='amountPriceInDollars' value={filters.amountPriceInDollars} onChange={handleFilterChange}
-                    placeholder='Amount in dollars' className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2' />
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500' />
+                <input type='number' name='amountPriceInDollars' value={filters.amountPriceInDollars} onChange={handleFilterChange} placeholder='Amount in dollars'
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500' />
                 <input type='text' name='description' value={filters.description} onChange={handleFilterChange} placeholder='Description'
-                    className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2' />
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500' />
                 <select name='state' value={filters.state} onChange={handleFilterChange}
-                    className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2'>
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500'>
                     <option value=''>All States</option>
                     <option value='pending'>Pending</option>
                     <option value='success'>Success</option>
                     <option value='failed'>Failed</option>
                 </select>
                 <input type='datetime-local' name='startDate' value={filters.startDate} onChange={handleFilterChange}
-                    className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2' />
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500' />
                 <input type='datetime-local' name='endDate' value={filters.endDate} onChange={handleFilterChange}
-                    className='bg-zinc-800 text-white border border-gray-700 rounded focus:ring-amber-500 p-2 focus:ring-2' />
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500' />
                 <button type='submit' className='bg-amber-500 text-zinc-800 px-4 py-2 rounded hover:opacity-80'>
                     Apply Filters
                 </button>
@@ -122,8 +122,8 @@ export default function OrganizationTransactions({ params }: { params: Promise<{
             </div>
 
             <div className='overflow-x-auto'>
-                <table className='w-full bg-gray-100 shadow-lg rounded-lg border border-gray-200'>
-                    <thead className='bg-gray-300 text-gray-900'>
+                <table className='min-w-full bg-zinc-800 text-amber-500 shadow-md rounded-lg'>
+                    <thead>
                         <tr>
                             {['amount', 'amountPriceInDollars', 'state', 'date'].map((field) => (
                                 <th key={field} className='px-6 py-3 border-b cursor-pointer' onClick={() => handleSort(field)}>
@@ -133,9 +133,9 @@ export default function OrganizationTransactions({ params }: { params: Promise<{
                             <th className='px-6 py-3 border-b'>Description</th>
                         </tr>
                     </thead>
-                    <tbody className='text-gray-800'>
+                    <tbody>
                         {transactionsData.transactions.map((tx) => (
-                            <tr key={tx.id} className='hover:bg-gray-200 transition'>
+                            <tr key={tx.id} className='hover:bg-zinc-700'>
                                 <td className='px-6 py-3 border-b text-center'>{tx.amount}</td>
                                 <td className='px-6 py-3 border-b text-center'>{tx.amountPriceInDollars}</td>
                                 <td className='px-6 py-3 border-b text-center'>{tx.state}</td>

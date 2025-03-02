@@ -16,8 +16,8 @@ export class TokenService {
 
     public async createToken(tokenDto: TokenDto, userId: string): Promise<TokenDocument> {
         const userOrganization = await this.userOrganizationModel.findOne({ orgId: tokenDto.orgId, userId }).lean();
-        if (!userOrganization && userOrganization.role !== OrganizationRole.ADMIN 
-            && userOrganization.role !== OrganizationRole.OWNER) {
+        if (!userOrganization || (userOrganization.role !== OrganizationRole.ADMIN
+            && userOrganization.role !== OrganizationRole.OWNER)) {
             throw new ForbiddenException('User is not allowed to create tokens for this organization');
         }
 
@@ -40,8 +40,18 @@ export class TokenService {
         return null;
     }
 
-    public async deleteTokenById(id: string): Promise<any> {
-        return this.tokenModel.findByIdAndDelete(id).exec();
+    public async deleteTokenById(tokenId: string, orgId: string, userId: string): Promise<any> {
+        const userOrganization = await this.userOrganizationModel.findOne({ orgId, userId }).lean();
+
+        if (!userOrganization || (userOrganization.role !== OrganizationRole.ADMIN
+            && userOrganization.role !== OrganizationRole.OWNER)) {
+            throw new ForbiddenException('User is not allowed to delete tokens for this organization');
+        }
+
+        return this.tokenModel.updateOne(
+            { _id: tokenId },
+            { isActive: false }
+        );
     }
 
     private generateToken(): string {

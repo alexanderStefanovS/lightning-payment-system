@@ -25,7 +25,7 @@ export default function UsersListPage() {
                 sortOrder: sort.order
             });
 
-            const data = await authFetch(`http://localhost:3000/admin/users?${query.toString()}`, {
+            const data = await authFetch(`http://localhost:3000/users/all?${query.toString()}`, {
                 method: 'GET',
             });
 
@@ -41,11 +41,6 @@ export default function UsersListPage() {
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleFilterSubmit = (e) => {
-        e.preventDefault();
-        setPagination((prev) => ({ ...prev, page: 1 }));
-    };
-
     const handleSort = (field) => {
         setSort((prev) => ({
             field,
@@ -59,7 +54,6 @@ export default function UsersListPage() {
                 method: 'PATCH',
             });
 
-            // Update the UI without reloading
             setUsers((prevUsers) =>
                 prevUsers.map((user) =>
                     user._id === userId ? { ...user, isActive: false } : user
@@ -74,18 +68,15 @@ export default function UsersListPage() {
         <div className='max-w-6xl mx-auto bg-zinc-900 p-6 rounded-lg shadow-md'>
             <h1 className='text-2xl font-bold text-amber-500 mb-4'>Users List</h1>
 
-            <form onSubmit={handleFilterSubmit} className='flex gap-4 mb-6'>
+            <form className='flex gap-4 mb-6'>
                 <input
                     type='text'
                     name='email'
                     value={filters.email}
                     onChange={handleFilterChange}
                     placeholder='Filter by Email'
-                    className='border rounded p-2 bg-zinc-800 text-amber-500 placeholder-amber-400'
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-amber-500'
                 />
-                <button type='submit' className='bg-amber-500 text-zinc-900 px-4 py-2 rounded hover:bg-amber-600'>
-                    Apply Filters
-                </button>
             </form>
 
             <table className='min-w-full bg-zinc-800 text-amber-500 shadow-md rounded-lg'>
@@ -103,7 +94,7 @@ export default function UsersListPage() {
                 </thead>
                 <tbody>
                     {users.map((user) => (
-                        <tr key={user._id} className='hover:bg-zinc-700'>
+                        <tr key={user._id} className='hover:bg-zinc-700 text-center'>
                             <td className='px-6 py-3 border-b'>{user.email}</td>
                             <td className='px-6 py-3 border-b'>{user.firstName}</td>
                             <td className='px-6 py-3 border-b'>{user.lastName}</td>

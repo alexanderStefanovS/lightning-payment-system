@@ -67,10 +67,12 @@ export default function PaymentPage({ params }: { params: Promise<{ transactionI
 
                 <div className="mt-6 flex flex-col items-center">
                     <p className="mb-2 text-center text-amber-400 font-semibold">Scan the QR code to pay:</p>
-                    <div className="bg-zinc-800 p-4 rounded-lg shadow-lg">
+                    <div className="bg-white p-4 rounded-lg shadow-lg">
                         <QRCodeCanvas value={transaction.invoicePaymentRequest} size={220} />
                     </div>
                 </div>
+
+                {transactionState === 'success' && (<p className='text-green-500'>Payment is successful. Please return to the vendor's site.</p>)}
             </div>
         </section>
     );

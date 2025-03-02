@@ -32,8 +32,6 @@ export function useAuthFetch() {
                     throw new Error('Unauthorized');
                 }
 
-                console.log(params);
-
                 if (params?.redirectError !== false && response.status >= 500 && response.status < 600) {
                     router.push('/error?type=server');
                     throw new Error('Server Error');

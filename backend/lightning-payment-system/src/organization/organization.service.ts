@@ -26,6 +26,7 @@ export class OrganizationService {
             userId,
             orgId: savedOrganization._id,
             role: OrganizationRole.OWNER,
+            status: OrganizationStatus.ACTIVE,
         });
         await userOrganization.save();
 

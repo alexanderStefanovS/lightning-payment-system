@@ -27,8 +27,6 @@ export default function OrganizationLayout({ children, params }: { children: any
 
         setOrganization(org);
 
-        console.log(tabs);
-
         if (org.role !== 'VIEWER' && tabs.findIndex((tab) => tab.name === 'Wallet') === -1) {
           setTabs([
             { name: 'Info', href: `/organizations/${orgId}/info` },
@@ -58,7 +56,7 @@ export default function OrganizationLayout({ children, params }: { children: any
             key={tab.href}
             href={tab.href}
             className={`px-4 py-2 rounded-lg transition-all duration-300 ${pathname === tab.href
-              ? 'bg-amber-500 text-zinc-900 shadow-lg' // Active Tab Style
+              ? 'bg-amber-500 text-zinc-900 shadow-lg'
               : 'text-amber-500 hover:bg-amber-500 hover:text-zinc-900 active:bg-amber-600'
               }`}
           >

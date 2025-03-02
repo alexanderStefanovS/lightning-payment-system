@@ -66,21 +66,21 @@ export default function UsersActivityPage() {
                     value={filters.email}
                     onChange={handleFilterChange}
                     placeholder='Filter by Email'
-                    className='border rounded p-2 bg-zinc-800 text-amber-500 placeholder-amber-400'
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-amber-500'
                 />
                 <input
                     type='datetime-local'
                     name='startDate'
                     value={filters.startDate}
                     onChange={handleFilterChange}
-                    className='border rounded p-2 bg-zinc-800 text-amber-500'
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-amber-500'
                 />
                 <input
                     type='datetime-local'
                     name='endDate'
                     value={filters.endDate}
                     onChange={handleFilterChange}
-                    className='border rounded p-2 bg-zinc-800 text-amber-500'
+                    className='bg-zinc-800 border border-zinc-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-amber-500'
                 />
                 <button type='submit' className='bg-amber-500 text-zinc-900 px-4 py-2 rounded hover:bg-amber-600'>
                     Apply Filters
@@ -105,10 +105,10 @@ export default function UsersActivityPage() {
                 </thead>
                 <tbody>
                     {activityLogs.map((log) => (
-                        <tr key={log._id} className='hover:bg-zinc-700'>
-                            <td className='px-6 py-3 border-b'>{log.email}</td>
-                            <td className='px-6 py-3 border-b'>{log.firstName} {log.lastName}</td>
-                            <td className='px-6 py-3 border-b'>{log.role}</td>
+                        <tr key={log.id} className='hover:bg-zinc-700'>
+                            <td className='px-6 py-3 border-b'>{log?.user.email}</td>
+                            <td className='px-6 py-3 border-b'>{log?.user.firstName} {log?.user.lastName}</td>
+                            <td className='px-6 py-3 border-b'>{log?.user.role}</td>
                             <td className='px-6 py-3 border-b'>{log.action}</td>
                             <td className='px-6 py-3 border-b'>{log.method}</td>
                             <td className='px-6 py-3 border-b'>{log.path}</td>

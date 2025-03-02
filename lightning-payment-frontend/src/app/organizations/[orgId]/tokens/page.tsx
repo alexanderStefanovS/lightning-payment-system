@@ -9,12 +9,9 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
   const [tokens, setTokens] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [newToken, setNewToken] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<any>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [form, setForm] = useState({ name: '', description: '', expiryDate: '', orgId });
   const { organization } = useContext(OrganizationContext);
-
-  console.log(organization);
-
   const authFetch = useAuthFetch();
 
   const fetchTokens = async () => {
@@ -58,6 +55,17 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
     fetchTokens();
   };
 
+  const handleDeactivateToken = async (tokenId) => {
+    try {
+      await authFetch(`http://localhost:3000/token/${orgId}/${tokenId}`, {
+        method: 'DELETE',
+      });
+      fetchTokens();
+    } catch (error) {
+      console.error('Error deactivating token:', error);
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center text-lg font-semibold text-amber-500">Loading tokens...</div>;
   }
@@ -66,21 +74,32 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
     <div className="max-w-4xl mx-auto bg-zinc-900 text-amber-500 p-8 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-6 text-center">Organization Tokens</h1>
 
-      {organization.role !== 'VIEWER' && 
+      {organization.role !== 'VIEWER' && (
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg hover:bg-amber-600 transition-all w-full mb-6"
         >
           Generate Token
         </button>
-      }
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tokens.length === 0 && (<div className="text-lg font-semibold text-amber-500">No tokens found</div>)}
+        {tokens.length === 0 && <div className="text-lg font-semibold text-amber-500">No tokens found</div>}
         {tokens.map((token) => (
           <div key={token._id} className="bg-zinc-800 p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-bold text-amber-400 mb-2">{token.name}</h2>
             <p className="text-gray-400">Expiry: {new Date(token.expiryDate).toLocaleDateString()}</p>
+            <p className={`mt-2 font-bold ${token.isActive ? 'text-green-400' : 'text-red-500'}`}>
+              {token.isActive ? 'Active' : 'Inactive'}
+            </p>
+            {token.isActive && (
+              <button
+                onClick={() => handleDeactivateToken(token._id)}
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all w-full"
+              >
+                Deactivate
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -92,7 +111,7 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
               <div>
                 <h2 className="text-xl font-bold mb-4 text-center">Token Created</h2>
                 <p className="mb-4 text-gray-400">Here is your token. Please copy and save it securely:</p>
-                <div className="bg-zinc-800 p-4 rounded text-amber-400">{newToken.value}</div>
+                <div className="bg-zinc-800 p-4 rounded text-amber-400 overflow-auto">{newToken.value}</div>
                 <button
                   onClick={handleCloseModal}
                   className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 hover:bg-green-600 transition-all w-full"
@@ -110,7 +129,7 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
                     name="name"
                     value={form.name}
                     onChange={handleInputChange}
-                    className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                    className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     required
                     autoComplete="off"
                   />
@@ -122,7 +141,7 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
                     name="description"
                     value={form.description}
                     onChange={handleInputChange}
-                    className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                    className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     required
                     autoComplete="off"
                   />
@@ -134,7 +153,7 @@ export default function OrganizationTokens({ params }: { params: Promise<{ orgId
                     name="expiryDate"
                     value={form.expiryDate}
                     onChange={handleInputChange}
-                    className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                    className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     required
                     autoComplete="off"
                   />

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Delete } from '@nestjs/common';
 import { TokenService } from './token.service';
 import { TokenDto } from 'src/dtos/token.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -20,5 +20,10 @@ export class TokenController {
     @Get('per-org/:orgId')
     public findTokensPerOrgId(@Param('orgId') orgId: string) {
         return this.tokenService.findTokensByOrgId(orgId);
+    }
+
+    @Delete(':orgId/:id')
+    public deleteToken(@Param('id') tokenId: string, @Param('orgId') orgId: string, @Req() req: any) {
+        return this.tokenService.deleteTokenById(tokenId, orgId, req.user.id);
     }
 }

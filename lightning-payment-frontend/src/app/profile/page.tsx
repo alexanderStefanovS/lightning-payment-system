@@ -20,7 +20,6 @@ export default function ProfilePage() {
         const data = await authFetch('http://localhost:3000/users', { method: 'GET' });
         setUser(data);
       } catch (error) {
-        router.replace('/error?type=server');
         console.error('Failed to fetch user info', error);
       }
     };

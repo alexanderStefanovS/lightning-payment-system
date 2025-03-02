@@ -10,6 +10,7 @@ export class ActivityLogService {
     constructor(@InjectModel(ActivityLog.name) private activityLogModel: Model<ActivityLogDocument>) {}
 
     async logActivity(userId: string, action: string, method: string, path: string, body?: any, status = 'success', errorMessage?: string) {
+        console.log('logActivity', userId);
         try {
             const log = new this.activityLogModel({ userId, action, method, path, body, status, errorMessage });
             await log.save();

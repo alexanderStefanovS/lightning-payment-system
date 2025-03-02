@@ -14,23 +14,28 @@ export function LoginForm() {
         const formData = new FormData(e.currentTarget);
         const { email, password } = Object.fromEntries(formData);
 
-        const response = await fetch('http://localhost:3000/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
+        try {
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
 
-        if (!response.ok) {
-            setError('Login failed. Please check your credentials.');
-            return;
+            if (!response.ok) {
+                setError('Login failed. Please check your credentials.');
+                return;
+            }
+
+            const userData = await response.json();
+
+            const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            Cookies.set('session', userData.accessToken, { expires });
+
+            router.push('/profile');
+        } catch (error) {
+            console.error('Login failed:', error);
+            setError('Login failed. Please try again.');
         }
-
-        const userData = await response.json();
-
-        const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        Cookies.set('session', userData.accessToken, { expires });
-
-        router.push('/profile');
     }
 
     return (

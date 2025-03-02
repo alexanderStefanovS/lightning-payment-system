@@ -9,7 +9,7 @@ export class AdminService {
   constructor(
     @InjectModel(ActivityLog.name) private activityLogModel: Model<ActivityLogDocument>,
     @InjectModel(User.name) private userModel: Model<User>,
-  ) {}
+  ) { }
 
   async getActivityLogs(
     filters: { email?: string; startDate?: string; endDate?: string },
@@ -17,17 +17,26 @@ export class AdminService {
     pagination: { page: number; limit: number },
   ) {
     const query: any = {};
-
     let userMap = new Map<string, any>();
+
     if (filters.email) {
       const user = await this.userModel.findOne({ email: filters.email }).lean();
-      if (user) query.userId = user._id;
+
+      if (user) {
+        query.userId = user._id;
+      }
     }
 
     if (filters.startDate || filters.endDate) {
       query.createdAt = {};
-      if (filters.startDate) query.createdAt.$gte = new Date(filters.startDate);
-      if (filters.endDate) query.createdAt.$lte = new Date(filters.endDate);
+
+      if (filters.startDate) {
+        query.createdAt.$gte = new Date(filters.startDate)
+      };
+
+      if (filters.endDate) {
+        query.createdAt.$lte = new Date(filters.endDate);
+      }
     }
 
     const sortQuery: any = {};
@@ -40,13 +49,14 @@ export class AdminService {
     const skip = (page - 1) * limit;
 
     const logs = await this.activityLogModel
-    .find(query, { createdAt: 1, userId: 1, action: 1, method: 1, path: 1, status: 1 })
-    .sort(sortQuery)
-    .skip(skip)
-    .limit(limit)
-    .lean();
+      .find(query, { createdAt: 1, userId: 1, action: 1, method: 1, path: 1, status: 1 })
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    const userIds = [...new Set(logs.map((log) => log.userId))];
+    const userIds = [...new Set(logs.map((log) => log.userId))].filter((id) => id !== 'anonymous');
+
     if (userIds.length > 0) {
       const users = await this.userModel.find({ _id: { $in: userIds } }).lean();
       userMap = new Map(users.map((user) => [user._id.toString(), user]));
@@ -62,11 +72,11 @@ export class AdminService {
         createdAt: log.createdAt,
         user: userMap.has(log.userId.toString())
           ? {
-              email: userMap.get(log.userId.toString()).email,
-              firstName: userMap.get(log.userId.toString()).firstName,
-              lastName: userMap.get(log.userId.toString()).lastName,
-              role: userMap.get(log.userId.toString()).role,
-            }
+            email: userMap.get(log.userId.toString()).email,
+            firstName: userMap.get(log.userId.toString()).firstName,
+            lastName: userMap.get(log.userId.toString()).lastName,
+            role: userMap.get(log.userId.toString()).role,
+          }
           : null,
       })),
       meta: {

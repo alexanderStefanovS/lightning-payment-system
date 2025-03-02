@@ -137,7 +137,7 @@ export default function OrganizationsPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 required
               />
             </div>
@@ -148,7 +148,7 @@ export default function OrganizationsPage() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                className="bg-zinc-800 text-white border border-gray-700 rounded w-full p-2 focus:ring-2 focus:ring-amber-500"
+                className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 required
               ></textarea>
             </div>

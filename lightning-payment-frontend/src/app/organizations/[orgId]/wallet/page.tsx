@@ -113,7 +113,7 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
                     value={lightningInvoice}
                     onChange={(e) => handleLightningInvoiceInput(e.target.value)}
                     placeholder="Enter Lightning Invoice"
-                    className="bg-zinc-700 border border-zinc-600 rounded-lg w-full p-3 mb-2 focus:ring-2 focus:ring-amber-500 outline-none text-white"
+                    className="bg-zinc-800 border border-zinc-700 rounded w-full p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-amber-500 mb-2"
                 />
                 {amount !== null && (
                     <div className="bg-zinc-700 p-3 rounded-lg mb-4">
@@ -128,7 +128,7 @@ export default function OrganizationWallet({ params }: { params: Promise<{ orgId
 
                 {!amount}
 
-                {lightningInvoice && !amount ? 'Invalid invoice' : ''}
+                {lightningInvoice && !amount ? (<p className="text-red-500"> Invalid invoice </p>) : ''}
 
                 <button
                     onClick={handleWithdraw}

@@ -5,11 +5,12 @@ import { GeneratedInvoice } from 'src/interfaces/generated-invoice';
 
 @Injectable()
 export class LnbitsApiService {
-    private readonly baseUrl = 'https://demo.lnbits.com/api/v1';
+    private readonly baseUrl: string;
     private readonly xApiKey: string;
 
     constructor(private configService: ConfigService) {
         this.xApiKey = this.configService.get<string>('LNBITS_X_API_KEY')
+        this.baseUrl = this.configService.get<string>('LNBITS_BASE_URL');
     }
 
     public generateInvoice(config: { amount?: number, description?: string, lightningInvoice?: string }, isInbound: boolean): Promise<GeneratedInvoice> {
@@ -30,8 +31,6 @@ export class LnbitsApiService {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data);
-
                 return {
                     paymentHash: data.payment_hash,
                     invoicePaymentRequest: data.payment_request,

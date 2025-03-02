@@ -1,4 +1,4 @@
-import { Body, Request, Controller, Get, Post, UseGuards, Put, UseInterceptors, Query, ForbiddenException, Patch, Param } from "@nestjs/common";
+import { Body, Request, Controller, Get, Post, UseGuards, Put, Query, ForbiddenException, Patch, Param } from "@nestjs/common";
 import { Roles } from "src/auth/decorators/set-roles.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { RolesGuard } from "src/auth/guards/roles.guard";
@@ -31,7 +31,7 @@ export class UserController {
     return { id, email, firstName, lastName };
   }
 
-  @Get()
+  @Get('all')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async getUsers(

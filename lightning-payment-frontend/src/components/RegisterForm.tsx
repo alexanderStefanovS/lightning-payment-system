@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import Cookies from 'js-cookie';
+
 interface RegisterFormProps {
     role: 'USER' | 'ADMIN';
 }
@@ -31,13 +33,16 @@ export default function RegisterForm({ role }: RegisterFormProps) {
         setMessage('');
 
         const endpoint =
-            role === 'ADMIN' ? 'http://localhost:3000/admin/register-admin' : 'http://localhost:3000/users/registration';
+            role === 'ADMIN' ? 'http://localhost:3000/users/register-admin' : 'http://localhost:3000/users/registration';
+
+        const token = Cookies.get('session');
 
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(token && role === 'ADMIN' ? { Authorization: `Bearer ${token}` } : {}),
                 },
                 body: JSON.stringify(formData),
             });
