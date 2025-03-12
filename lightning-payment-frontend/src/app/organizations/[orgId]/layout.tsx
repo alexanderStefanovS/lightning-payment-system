@@ -2,9 +2,8 @@
 
 import { useAuthFetch } from "@/lib/auth-fetch";
 import { usePathname } from "next/navigation";
-import { createContext, use, useEffect, useState } from "react";
-
-export const OrganizationContext = createContext<any>(null);
+import { use, useEffect, useState } from "react";
+import { OrganizationContext } from "./organization-context";
 
 export default function OrganizationLayout({ children, params }: { children: any, params: Promise<{ orgId: string }> }) {
   const { orgId } = use(params);

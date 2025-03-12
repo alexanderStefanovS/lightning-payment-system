@@ -16,11 +16,13 @@ export class UserController {
     return this.userService.registerUser(registrationData);
   }
 
-  @Post('register-admin')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  registerAdmin(@Body() registrationData: UserDto) {
-    return this.userService.registerUser(registrationData, UserRole.ADMIN);
+  @Put('change-password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(@Request() req: any, @Body() body: ChangePasswordDto) {
+    const userId = req.user.id;
+    const { newPassword } = body;
+
+    return this.userService.changePassword(userId, newPassword);
   }
 
   @Get()
@@ -29,6 +31,13 @@ export class UserController {
     const { _id: id, email, firstName, lastName } = await this.userService.findById(req.user.id);
 
     return { id, email, firstName, lastName };
+  }
+
+  @Post('register-admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  registerAdmin(@Body() registrationData: UserDto) {
+    return this.userService.registerUser(registrationData, UserRole.ADMIN);
   }
 
   @Get('all')
@@ -43,15 +52,6 @@ export class UserController {
     const limitNumber = parseInt(limit, 10);
 
     return this.userService.getUsers(email, pageNumber, limitNumber);
-  }
-
-  @Put('change-password')
-  @UseGuards(JwtAuthGuard)
-  async changePassword(@Request() req: any, @Body() body: ChangePasswordDto) {
-    const userId = req.user.id;
-    const { newPassword } = body;
-
-    return this.userService.changePassword(userId, newPassword);
   }
 
   @Patch(':id/deactivate')

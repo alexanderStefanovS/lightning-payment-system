@@ -2,7 +2,7 @@
 
 import { useAuthFetch } from '@/lib/auth-fetch';
 import { use, useContext, useEffect, useState } from 'react';
-import { OrganizationContext } from '../layout';
+import { OrganizationContext } from '../organization-context';
 
 export default function OrganizationTokens({ params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = use(params);

@@ -1,11 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function ErrorPage() {
+function ShowError() {
     const searchParams = useSearchParams();
     const errorType = searchParams.get('type');
-
+ 
     return (
         <div className="h-full flex items-center justify-center text-amber-500">
             <div className="bg-zinc-800 p-6 rounded-lg shadow-md text-center w-96">
@@ -33,5 +34,13 @@ export default function ErrorPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function ErrorPage() {
+    return (
+        <Suspense>
+            <ShowError />
+        </Suspense>
     );
 }
