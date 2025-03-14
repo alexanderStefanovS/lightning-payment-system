@@ -21,8 +21,6 @@ export class LnbitsApiService {
             memo: config.description,
         };
 
-        console.log(body);
-
         return fetch(`${this.baseUrl}/payments`, {
             method: 'POST',
             headers: {
@@ -33,8 +31,6 @@ export class LnbitsApiService {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data);
-
                 return {
                     paymentHash: data.payment_hash,
                     invoicePaymentRequest: data.bolt11,
